@@ -6,6 +6,7 @@ rust-version = "1.75"
 description = "Kori Neural OS — Kernel Virtual (K-Script / .koko v2.0)"
 license = "MIT"
 repository = "https://github.com/leguizamariano0-code/k-script"
+homepage = "https://k-script.vercel.app"
 authors = ["Mariano Leguiza"]
 
 [lib]

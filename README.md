@@ -2,7 +2,7 @@
 
 K-Script is a declarative language for building self-contained apps. An entire app is a single `.koko` text file that parses, evaluates under constitutional invariants, renders reactively, and round-trips bit-perfect through a formal compiler.
 
-- **Live Demo:** [Open Hello World `.koko` v2.0 Studio](https://ai.studio/apps/51de3c38-ef39-4310-bb01-4be724dfe75a?fullscreenApplet=true)
+- **Live Demo:** [Open Hello World `.koko` v2.0 Studio](https://k-script.vercel.app)
 - **Repository:** `https://github.com/leguizamariano0-code/k-script`
 
 ## The `.koko` file

@@ -4,6 +4,7 @@
   "private": false,
   "type": "module",
   "license": "MIT",
+  "homepage": "https://k-script.vercel.app",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
