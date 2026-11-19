@@ -55,11 +55,16 @@ export function simular_estado_sensorial(
     }
   }
 
-  const norm = Math.sqrt(rawVec.reduce((sum, x) => sum + x * x, 0));
-  if (norm >= 1.0) {
+  const norm = Math.sqrt(
+    rawVec[0] * rawVec[0] +
+    rawVec[1] * rawVec[1] +
+    rawVec[2] * rawVec[2] +
+    rawVec[3] * rawVec[3]
+  );
+  if (norm >= 0.999) {
     return JSON.stringify({
       estable: false,
-      motivo_rechazo: `Fuera del disco de Poincaré unitario (norma=${norm.toFixed(4)} >= 1.0)`,
+      motivo_rechazo: `Fuera del disco de Poincaré unitario B⁴ (norma=${norm.toFixed(4)} >= 0.999)`,
       estado_inicial: vecToState(rawVec),
       estado_final: vecToState(rawVec),
       traza_jacobiano: 0.5,
@@ -121,37 +126,72 @@ export function simular_estado_sensorial(
     });
   }
 
-  const inertia = [-0.1, -0.12, -0.11, -0.13, -0.1, -0.15, -0.1, -0.12];
+  const inertiaBase = [-0.1, -0.12, -0.11, -0.13, -0.1, -0.15, -0.1, -0.12];
   const coupling = 0.6;
   const nonLinearScale = 2.0;
 
   const projectDisk = (x: number[], maxNorm = 0.99): number[] => {
-    let sum = 0;
-    for (let i = 0; i < 8; i++) sum += x[i] * x[i];
+    const sum = x[0] * x[0] + x[1] * x[1] + x[2] * x[2] + x[3] * x[3];
     const n = Math.sqrt(sum);
     if (n >= maxNorm) {
       const factor = maxNorm / n;
-      return x.map((v) => v * factor);
+      return x.map((v, idx) => (idx < 4 ? v * factor : v));
     }
     return x;
+  };
+
+  const dampingAt = (i: number, x: number[]): number => {
+    const base = inertiaBase[i];
+    switch (i) {
+      case 0:
+        return base - 0.05 * Math.abs(x[0]);
+      case 4:
+        return base - 0.30 * (x[4] - 0.85);
+      case 5:
+        return base + 0.15 * x[5];
+      case 6:
+        return base + 0.10 * (x[6] - 0.5);
+      case 7:
+        return base - 0.20 * x[7];
+      default:
+        return base;
+    }
   };
 
   const derivative = (x: number[], x0: number[]): number[] => {
     const d = new Array<number>(8);
     for (let i = 0; i < 8; i++) {
       const nextIdx = (i + 1) % 8;
-      const linear = inertia[i] * (x[i] - x0[i]);
+      const linear = dampingAt(i, x) * (x[i] - x0[i]);
       const nonLinear = coupling * 0.1 * Math.tanh(nonLinearScale * x[nextIdx]);
       d[i] = linear + nonLinear;
     }
     return d;
   };
 
-  const computeJacobian = (x: number[]): number[][] => {
+  const computeJacobian = (x: number[], x0: number[]): number[][] => {
     const J = Array.from({ length: 8 }, () => new Array<number>(8).fill(0));
     for (let i = 0; i < 8; i++) {
       const nextIdx = (i + 1) % 8;
-      J[i][i] = inertia[i];
+      let dPrime = 0;
+      switch (i) {
+        case 0:
+          dPrime = -0.05 * Math.sign(x[0]);
+          break;
+        case 4:
+          dPrime = -0.30;
+          break;
+        case 5:
+          dPrime = 0.15;
+          break;
+        case 6:
+          dPrime = 0.10;
+          break;
+        case 7:
+          dPrime = -0.20;
+          break;
+      }
+      J[i][i] = dampingAt(i, x) + dPrime * (x[i] - x0[i]);
       const th = Math.tanh(nonLinearScale * x[nextIdx]);
       const sech2 = 1.0 - th * th;
       J[i][nextIdx] = coupling * 0.1 * nonLinearScale * sech2;
@@ -159,7 +199,7 @@ export function simular_estado_sensorial(
     return J;
   };
 
-  const v0 = projectDisk(rawVec, 0.98);
+  const v0 = projectDisk(rawVec, 0.99);
   let current = [...v0];
   let Q = Array.from({ length: 8 }, (_, i) => {
     const row = new Array<number>(8).fill(0);
@@ -178,7 +218,7 @@ export function simular_estado_sensorial(
       current.map((v, i) => v + (dt / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]))
     );
 
-    const J = computeJacobian(current);
+    const J = computeJacobian(current, v0);
     const Z = Array.from({ length: 8 }, () => new Array<number>(8).fill(0));
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
@@ -219,9 +259,14 @@ export function simular_estado_sensorial(
   }
 
   const jacobianTrace = lyapunovSpectrum.reduce((sum, val) => sum + val, 0);
-  const finalNorm = Math.sqrt(current.reduce((sum, x) => sum + x * x, 0));
+  const finalNorm = Math.sqrt(
+    current[0] * current[0] +
+    current[1] * current[1] +
+    current[2] * current[2] +
+    current[3] * current[3]
+  );
   const allNegative = lyapunovSpectrum.every((l) => l < 0);
-  const isStable = jacobianTrace < 0 && allNegative && finalNorm < 1.0;
+  const isStable = jacobianTrace < 0 && allNegative && finalNorm < 0.999;
 
   return JSON.stringify({
     estable: isStable,

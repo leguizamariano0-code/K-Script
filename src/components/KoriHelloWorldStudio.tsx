@@ -518,9 +518,20 @@ export default function KoriHelloWorldStudio() {
             </div>
 
             <div className="text-right">
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-                {lyapunovData.estable ? '✅ Inmune & Estable' : '⚠️ Inestable'}
-              </span>
+              {(() => {
+                const isHealthy = lyapunovData.estable && lyapunovData.traza < 0;
+                return (
+                  <span
+                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                      isHealthy
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : 'bg-[#e94e5a]/15 text-[#e94e5a]'
+                    }`}
+                  >
+                    {isHealthy ? '✅ Inmune & Estable' : '⚠️ Inestable'}
+                  </span>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -533,8 +544,12 @@ export default function KoriHelloWorldStudio() {
                 <Sliders className="w-4 h-4 text-[#af9aca]" />
                 Espacio Semántico 8D
               </h2>
-              <span className="text-xs font-mono font-bold text-[#af9aca]">
-                ‖x‖ = {lyapunovData.norma.toFixed(4)} &lt; 1.0
+              <span
+                className={`text-xs font-mono font-bold ${
+                  lyapunovData.norma < 0.999 ? 'text-[#af9aca]' : 'text-[#e94e5a]'
+                }`}
+              >
+                ‖x‖ = {lyapunovData.norma.toFixed(4)} {lyapunovData.norma < 0.999 ? '< 1.0' : '≥ 1.0'}
               </span>
             </div>
 
@@ -685,11 +700,11 @@ export default function KoriHelloWorldStudio() {
           <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 border border-[#af9aca]/40 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs font-bold uppercase tracking-wider text-[#1D1D1B] flex items-center gap-1.5">
-                <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                <Activity className={`w-3.5 h-3.5 ${lyapunovData.traza < 0 ? 'text-emerald-600' : 'text-[#e94e5a]'}`} />
                 Espectro de Lyapunov (Benettin QR)
               </span>
-              <span className="text-xs font-mono font-bold text-emerald-600">
-                Tr(J) = {lyapunovData.traza.toFixed(3)} &lt; 0
+              <span className={`text-xs font-mono font-bold ${lyapunovData.traza < 0 ? 'text-emerald-600' : 'text-[#e94e5a]'}`}>
+                Tr(J) = {lyapunovData.traza.toFixed(3)} {lyapunovData.traza < 0 ? '< 0' : '≥ 0'}
               </span>
             </div>
 
@@ -697,7 +712,7 @@ export default function KoriHelloWorldStudio() {
               {lyapunovData.spectrum.map((val, idx) => (
                 <div key={idx} className="bg-[#E3E0D2] p-1.5 rounded-lg border border-[#af9aca]/20">
                   <div className="text-[9px] text-[#1D1D1B]/60">λ_{idx + 1}</div>
-                  <div className="font-bold text-emerald-700">{val.toFixed(3)}</div>
+                  <div className={`font-bold ${val < 0 ? 'text-emerald-700' : 'text-[#e94e5a]'}`}>{val.toFixed(3)}</div>
                 </div>
               ))}
             </div>
