@@ -1,0 +1,17 @@
+RIMA: HelloWorld_v2
+
+VERSION: "2.0.0-hello";
+AUTOR: "Mariano_Leguiza";
+
+INVARIANT: Etica >= 0.85;
+INVARIANT: Etica <= 0.99;
+INVARIANT: Incertidumbre >= 0.00;
+INVARIANT: Incertidumbre <= 0.50;
+
+FRECUENCIAS: 0.174 | 0.285 | 0.396 | 0.417 | 0.432 | 0.528 | 0.639 | 0.741 | 0.852 | 0.963;
+
+TOPOLOGICOS: Nombre["Hello World Fractal"] | Genero[Visualizador_Reactivo] | Paleta["#af9aca"] | Complejidad[0.65];
+
+RESONANCIA: Vector[0.4000, 0.1500, 0.5000, 0.2000, 0.9500, 0.1000, 0.5280, 0.0800];
+
+PESOS: Topologicos[0.30] | Causales[0.00] | Resonancia[0.70] | Interferencia[0.00];

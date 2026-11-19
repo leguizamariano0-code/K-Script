@@ -1,0 +1,12 @@
+{
+  "name": "K-Script Publico",
+  "description": "Compilador K-Script (.koko v2.0) y Hello World Studio",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
