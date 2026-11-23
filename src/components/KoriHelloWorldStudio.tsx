@@ -227,8 +227,9 @@ export default function KoriHelloWorldStudio() {
       const w = canvas.width;
       const h = canvas.height;
 
-      // Dark Pro Tool Background with subtle glow
-      ctx.fillStyle = 'rgba(29, 29, 27, 0.35)'; // High-contrast pro dark
+      // Dark Pro Tool Background (limpieza completa por frame para evitar ghosting)
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#1D1D1B';
       ctx.fillRect(0, 0, w, h);
 
       const cx = w / 2;
