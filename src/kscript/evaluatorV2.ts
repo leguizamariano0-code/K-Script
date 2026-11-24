@@ -461,7 +461,6 @@ export class Evaluator {
         };
         break;
       case 'guardar':
-      case 'compartir':
         value = {
           kind: 'Effect',
           effectType: 'persist',
@@ -500,15 +499,481 @@ export class Evaluator {
       case 'modular':
       case 'calibrar':
       case 'sintetizar':
-      case 'filtrar':
         value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+
+      // Lote 1: 10 verbos no-core
+      case 'crear':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.1));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'create',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'destruir':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] - 0.1));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'destroy',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'mover':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'move',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'copiar':
+        ctx.state[5] = clamp01(ctx.state[5] + 0.02);
+        value = {
+          kind: 'Effect',
+          effectType: 'copy',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'pegar':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'paste',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'filtrar':
+        ctx.state[7] = clamp01(ctx.state[7] - 0.05);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'ordenar':
+        ctx.state[7] = clamp01(ctx.state[7] - 0.1);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'agrupar':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.03));
+        projectOntoDisk(ctx.state);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'abrir':
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'open',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'cerrar':
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] - 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'close',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+
+      // Lote 2: 10 verbos no-core
+      case 'buscar':
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] + 0.05));
+        ctx.state[7] = clamp01(ctx.state[7] - 0.05);
+        projectOntoDisk(ctx.state);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'analizar':
+        ctx.state[7] = clamp01(ctx.state[7] - 0.1);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'comparar':
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        ctx.state[7] = clamp01(ctx.state[7] - 0.02);
+        projectOntoDisk(ctx.state);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'predecir':
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] + 0.1));
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'predict',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'estilizar':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.05));
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'style',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'difuminar':
+        ctx.state[7] = clamp01(ctx.state[7] + 0.08);
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] - 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'blur',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'sombrear':
+        ctx.state[5] = clamp01(ctx.state[5] + 0.05);
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'shadow',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'modelar':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.1));
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'model',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'mapear':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.05));
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'reflejar':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.05));
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] - 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'reflect',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+
+      // Lote 3: 10 verbos no-core
+      case 'encriptar':
+        ctx.state[7] = clamp01(ctx.state[7] - 0.05);
+        ctx.state[4] = clamp01(ctx.state[4] + 0.02);
+        value = {
+          kind: 'Effect',
+          effectType: 'encrypt',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'desencriptar':
+        ctx.state[7] = clamp01(ctx.state[7] + 0.02);
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'decrypt',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'autenticar':
+        ctx.state[4] = clamp01(ctx.state[4] + 0.05);
+        ctx.state[7] = clamp01(ctx.state[7] - 0.05);
+        value = {
+          kind: 'Effect',
+          effectType: 'authenticate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'autorizar':
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        ctx.state[4] = clamp01(ctx.state[4] + 0.02);
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'authorize',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'vincular':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.05));
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] + 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'link',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'compartir':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.08));
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'share',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'eliminar':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] - 0.08));
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] - 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'delete',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'reiniciar':
+        ctx.state[1] = 0.0;
+        ctx.state[3] = 0.0;
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'restart',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'expandir':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.1));
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'expand',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'contraer':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] - 0.1));
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] - 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'contract',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+
+      // Lote 4: 10 verbos no-core
+      case 'extraer':
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] - 0.05));
+        ctx.state[5] = clamp01(ctx.state[5] - 0.05);
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'extract',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'configurar':
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.02));
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'configure',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'protocolo':
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.1));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'protocol',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'reforzar':
+        ctx.state[5] = clamp01(ctx.state[5] + 0.05);
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'reinforce',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'traducir':
+        ctx.state[7] = clamp01(ctx.state[7] - 0.05);
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'translate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'olvidar':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] - 0.1));
+        ctx.state[7] = clamp01(ctx.state[7] + 0.1);
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'forget',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'detener':
+        ctx.state[1] = 0.0;
+        ctx.state[5] = 0.0;
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'halt',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'decodificar':
+        ctx.state[7] = clamp01(ctx.state[7] - 0.08);
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.08));
+        projectOntoDisk(ctx.state);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'cobrar':
+        ctx.state[5] = clamp01(ctx.state[5] - 0.02);
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] - 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'charge',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'pagar':
+        ctx.state[5] = clamp01(ctx.state[5] + 0.02);
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'pay',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+
+      // Lote 5: 10 verbos no-core
+      case 'evolucionar':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.1));
+        ctx.state[7] = clamp01(ctx.state[7] - 0.1);
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'evolve',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'hibernar':
+        ctx.state[5] = clamp01(ctx.state[5] - 0.1);
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] - 0.1));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'hibernate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'orquestar':
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.1));
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.1));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'orchestrate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'estimular':
+        ctx.state[5] = clamp01(ctx.state[5] + 0.1);
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'stimulate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'simular':
+        ctx.state[7] = clamp01(ctx.state[7] + 0.05);
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = { kind: 'Vector8', value: [...ctx.state] as Vector8 };
+        break;
+      case 'gobernar':
+        ctx.state[4] = clamp01(ctx.state[4] + 0.05);
+        ctx.state[3] = Math.max(-0.999, Math.min(0.999, ctx.state[3] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'govern',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'intercambiar':
+        ctx.state[5] = clamp01(ctx.state[5] + 0.05);
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'exchange',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'inocular':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.08));
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.02));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'inoculate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'cosechar':
+        ctx.state[5] = clamp01(ctx.state[5] + 0.1);
+        ctx.state[1] = Math.max(-0.999, Math.min(0.999, ctx.state[1] + 0.05));
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'harvest',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
+        break;
+      case 'meditar':
+        ctx.state[7] = clamp01(ctx.state[7] - 0.15);
+        ctx.state[4] = clamp01(ctx.state[4] + 0.02);
+        value = {
+          kind: 'Effect',
+          effectType: 'meditate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
         break;
 
       case 'ejecutar':
       case 'iterar':
       case 'esperar':
-      case 'detener':
         value = { kind: 'Bool', value: true };
+        break;
+
+      // Lote 6: 73/73
+      case 'cultivar':
+        ctx.state[0] = Math.max(-0.999, Math.min(0.999, ctx.state[0] + 0.08));
+        ctx.state[2] = Math.max(-0.999, Math.min(0.999, ctx.state[2] + 0.08));
+        ctx.state[5] = clamp01(ctx.state[5] + 0.05);
+        projectOntoDisk(ctx.state);
+        value = {
+          kind: 'Effect',
+          effectType: 'cultivate',
+          payload: `${cmd.verb.rawName} sobre ${cmd.subject.rawName}`,
+        };
         break;
 
       default:
